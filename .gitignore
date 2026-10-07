@@ -4,3 +4,10 @@ dist/
 .DS_Store
 .env
 .env.local
+
+# Fixture projects are test data, not configuration. The suite reads these and
+# fails without them; their credential-shaped values are synthetic, and exist so
+# the privacy tests in test/collectors.test.ts can assert values never escape.
+!test/fixtures/**/.env
+!test/fixtures/**/.env.local
+!test/fixtures/**/.env.example
