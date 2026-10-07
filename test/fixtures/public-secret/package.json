@@ -1,0 +1,1 @@
+{ "name": "fixture-public-secret", "dependencies": { "next": "14.2.5" }, "scripts": { "build": "next build" } }

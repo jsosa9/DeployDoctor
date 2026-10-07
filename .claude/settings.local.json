@@ -1,0 +1,112 @@
+{
+  "hooks": {
+    "Notification": [
+      {
+        "_nebulaManaged": true,
+        "hooks": [
+          {
+            "command": "if [ -z \"$NEBULA_AGENT_ID\" ] || [ -z \"$NEBULA_API_URL\" ]; then exit 0; fi; curl -sS -m 3 -X POST -H \"Authorization: Bearer $NEBULA_API_TOKEN\" -H \"Content-Type: application/json\" --data-binary @- \"$NEBULA_API_URL/api/hooks/claude?agentId=$NEBULA_AGENT_ID&hookEvent=Notification\" >/dev/null 2>&1 || true",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "_nebulaManaged": true,
+        "hooks": [
+          {
+            "command": "if [ -z \"$NEBULA_AGENT_ID\" ] || [ -z \"$NEBULA_API_URL\" ]; then exit 0; fi; curl -sS -m 3 -X POST -H \"Authorization: Bearer $NEBULA_API_TOKEN\" -H \"Content-Type: application/json\" --data-binary @- \"$NEBULA_API_URL/api/hooks/claude?agentId=$NEBULA_AGENT_ID&hookEvent=PermissionRequest\" >/dev/null 2>&1 || true",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "_nebulaManaged": true,
+        "hooks": [
+          {
+            "command": "if [ -z \"$NEBULA_AGENT_ID\" ] || [ -z \"$NEBULA_API_URL\" ]; then exit 0; fi; curl -sS -m 3 -X POST -H \"Authorization: Bearer $NEBULA_API_TOKEN\" -H \"Content-Type: application/json\" --data-binary @- \"$NEBULA_API_URL/api/hooks/claude?agentId=$NEBULA_AGENT_ID&hookEvent=PostToolUse\" >/dev/null 2>&1 || true",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "_nebulaManaged": true,
+        "hooks": [
+          {
+            "command": "if [ -z \"$NEBULA_AGENT_ID\" ] || [ -z \"$NEBULA_API_URL\" ]; then exit 0; fi; curl -sS -m 3 -X POST -H \"Authorization: Bearer $NEBULA_API_TOKEN\" -H \"Content-Type: application/json\" --data-binary @- \"$NEBULA_API_URL/api/hooks/claude?agentId=$NEBULA_AGENT_ID&hookEvent=PreToolUse\" >/dev/null 2>&1 || true",
+            "type": "command"
+          }
+        ],
+        "matcher": "AskUserQuestion"
+      }
+    ],
+    "SessionStart": [
+      {
+        "_nebulaManaged": true,
+        "hooks": [
+          {
+            "command": "if [ -z \"$NEBULA_AGENT_ID\" ] || [ -z \"$NEBULA_API_URL\" ]; then exit 0; fi; curl -sS -m 3 -X POST -H \"Authorization: Bearer $NEBULA_API_TOKEN\" -H \"Content-Type: application/json\" --data-binary @- \"$NEBULA_API_URL/api/hooks/claude?agentId=$NEBULA_AGENT_ID&hookEvent=SessionStart\" >/dev/null 2>&1 || true",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "_nebulaManaged": true,
+        "hooks": [
+          {
+            "command": "if [ -z \"$NEBULA_AGENT_ID\" ] || [ -z \"$NEBULA_API_URL\" ]; then exit 0; fi; curl -sS -m 3 -X POST -H \"Authorization: Bearer $NEBULA_API_TOKEN\" -H \"Content-Type: application/json\" --data-binary @- \"$NEBULA_API_URL/api/hooks/claude?agentId=$NEBULA_AGENT_ID&hookEvent=Stop\" >/dev/null 2>&1 || true",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "_nebulaManaged": true,
+        "hooks": [
+          {
+            "command": "if [ -z \"$NEBULA_AGENT_ID\" ] || [ -z \"$NEBULA_API_URL\" ]; then exit 0; fi; curl -sS -m 3 -X POST -H \"Authorization: Bearer $NEBULA_API_TOKEN\" -H \"Content-Type: application/json\" --data-binary @- \"$NEBULA_API_URL/api/hooks/claude?agentId=$NEBULA_AGENT_ID&hookEvent=SubagentStart\" >/dev/null 2>&1 || true",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "_nebulaManaged": true,
+        "hooks": [
+          {
+            "command": "if [ -z \"$NEBULA_AGENT_ID\" ] || [ -z \"$NEBULA_API_URL\" ]; then exit 0; fi; curl -sS -m 3 -X POST -H \"Authorization: Bearer $NEBULA_API_TOKEN\" -H \"Content-Type: application/json\" --data-binary @- \"$NEBULA_API_URL/api/hooks/claude?agentId=$NEBULA_AGENT_ID&hookEvent=SubagentStop\" >/dev/null 2>&1 || true",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "_nebulaManaged": true,
+        "hooks": [
+          {
+            "command": "if [ -z \"$NEBULA_AGENT_ID\" ] || [ -z \"$NEBULA_API_URL\" ]; then exit 0; fi; curl -sS -m 3 -X POST -H \"Authorization: Bearer $NEBULA_API_TOKEN\" -H \"Content-Type: application/json\" --data-binary @- \"$NEBULA_API_URL/api/hooks/claude?agentId=$NEBULA_AGENT_ID&hookEvent=UserPromptSubmit\" 2>/dev/null || true",
+            "type": "command"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(nebula rename:*)",
+      "Bash(nebula worktree:*)",
+      "Bash(nebula spawn:*)",
+      "Bash(nebula open:*)"
+    ]
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "deploydoctor",
+  "version": "0.1.0",
+  "description": "Wraps your build command, catches failures, and tells you in plain English what broke and how to fix it.",
+  "type": "module",
+  "bin": {
+    "deploydoctor": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "vercel",
+    "deploy",
+    "cli",
+    "debugging",
+    "nextjs"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "commander": "^12.1.0",
+    "conf": "^13.0.1",
+    "picocolors": "^1.1.1",
+    "simple-git": "^3.27.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.5"
+  }
+}
