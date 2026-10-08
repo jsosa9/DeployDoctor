@@ -51,8 +51,47 @@ class TailBuffer {
  * signals are forwarded so Ctrl-C behaves as it would without the wrapper.
  * Anything less and people won't put this in front of their builds.
  */
+/** Characters a POSIX shell leaves alone, so they need no quoting. */
+const SHELL_SAFE = /^[A-Za-z0-9_@%+=:,./-]+$/;
+
+/**
+ * Wraps one argument so the shell receives it as a single word.
+ *
+ * Single quotes are the only POSIX construct that disables every expansion, so
+ * an embedded quote has to be closed, escaped, and reopened — `'\''`.
+ */
+function quoteArg(arg: string): string {
+  if (SHELL_SAFE.test(arg)) return arg;
+  return `'${arg.replace(/'/g, `'\\''`)}'`;
+}
+
+/**
+ * Renders argv as a shell command line.
+ *
+ * The two shapes mean different things, and conflating them loses data:
+ *
+ * - **One argument** is a command *string*. It passes through untouched so
+ *   `deploydoctor run 'npm run build && next start'` still works as typed —
+ *   operators and redirections included.
+ * - **Several arguments** are a command and its arguments. Your shell already
+ *   stripped their quoting before we were invoked, so joining them raw and
+ *   handing the result back to a shell lets it re-parse and split them again.
+ *   `run sh -c 'echo "Error: boom"; exit 1'` became `sh -c echo "Error: boom";
+ *   exit 1` — which runs `sh -c echo`, prints nothing, and leaves the error
+ *   frame empty. Silently losing the failure is the worst outcome this tool
+ *   has, so each argument is re-quoted to survive the round trip.
+ *
+ * Safe words are left bare rather than blanket-quoted: the rendered command is
+ * echoed back to the user and sent for diagnosis, so it should read like what
+ * they typed.
+ */
+export function formatCommand(argv: string[]): string {
+  if (argv.length <= 1) return argv[0] ?? "";
+  return argv.map(quoteArg).join(" ");
+}
+
 export function run(argv: string[], cwd: string): Promise<RunResult> {
-  const command = argv.join(" ");
+  const command = formatCommand(argv);
   const startedAt = Date.now();
 
   return new Promise((resolve, reject) => {

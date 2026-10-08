@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { run } from "../src/runner/spawn.js";
+import { run, formatCommand } from "../src/runner/spawn.js";
 import { collectBuildLog } from "../src/collectors/buildLog.js";
 
 /**
@@ -35,6 +35,65 @@ describe("run", () => {
   it("measures duration", async () => {
     const result = await run(["echo hi"], process.cwd());
     expect(result.durationMs).toBeGreaterThanOrEqual(0);
+  });
+});
+
+/**
+ * argv arrives with the caller's shell quoting already stripped, and the
+ * command then goes back through a shell. Without re-quoting, that second
+ * parse re-splits arguments and the failure output disappears — leaving the
+ * diagnosis with an empty error frame and nothing to explain.
+ */
+describe("formatCommand", () => {
+  it("passes a lone command string through untouched", () => {
+    expect(formatCommand(["npm run build && next start"])).toBe(
+      "npm run build && next start",
+    );
+  });
+
+  it("leaves ordinary words unquoted, so the echo reads like what was typed", () => {
+    expect(formatCommand(["npm", "run", "build"])).toBe("npm run build");
+  });
+
+  it("leaves a build command's own flags unquoted", () => {
+    expect(formatCommand(["next", "build", "--debug"])).toBe("next build --debug");
+    expect(formatCommand(["tsc", "-p", "tsconfig.build.json"])).toBe(
+      "tsc -p tsconfig.build.json",
+    );
+  });
+
+  it("quotes an argument containing spaces", () => {
+    expect(formatCommand(["sh", "-c", "echo hi; exit 1"])).toBe("sh -c 'echo hi; exit 1'");
+  });
+
+  it("escapes an embedded single quote", () => {
+    expect(formatCommand(["sh", "-c", "echo 'hi'"])).toBe(`sh -c 'echo '\\''hi'\\'''`);
+  });
+
+  it("handles empty argv", () => {
+    expect(formatCommand([])).toBe("");
+  });
+});
+
+describe("quoting survives the shell round trip", () => {
+  it("keeps a multi-argument command's error output intact", async () => {
+    // This is the regression: joined raw, the shell ran `sh -c echo` and the
+    // error never appeared, so collectBuildLog had nothing to extract.
+    const result = await run(["sh", "-c", 'echo "Error: boom"; exit 1'], process.cwd());
+    expect(result.exitCode).toBe(1);
+    expect(result.combined).toContain("Error: boom");
+    expect(collectBuildLog(result).errorFrame.join("\n")).toContain("Error: boom");
+  });
+
+  it("preserves a value containing spaces", async () => {
+    const result = await run(["echo", "a b c"], process.cwd());
+    expect(result.stdout.trim()).toBe("a b c");
+  });
+
+  it("still honors shell operators in a single-argument command", async () => {
+    const result = await run(["echo one && echo two"], process.cwd());
+    expect(result.stdout).toContain("one");
+    expect(result.stdout).toContain("two");
   });
 });
 

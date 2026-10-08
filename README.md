@@ -150,6 +150,11 @@ deploydoctor check --vercel
 
 # See exactly what would be sent to the API, and send nothing.
 deploydoctor check --dry-run
+
+# Analyze a project somewhere else, without cd-ing into it. Works on every
+# command, and fails loudly if the path isn't a directory.
+deploydoctor check --cwd ../other-project
+deploydoctor run npm run build --cwd ../other-project
 ```
 
 ### What gets sent
@@ -199,13 +204,36 @@ Being straight about what's actually been proven, since it affects how much to t
 
 | Area | Status |
 |---|---|
-| Command wrapping, exit codes, log extraction | Verified against real processes |
+| Command wrapping, exit codes, log extraction | Verified against real processes, and end-to-end through the built CLI by `npm run harness` |
 | Env var scanning, `.env` parsing, all finding rules | Verified against fixture projects |
-| Redaction | Verified — 16 pattern tests plus end-to-end |
+| Redaction | Verified — 16 pattern tests, plus a harness scenario that proves a secret echoed by a build is captured *and* replaced |
 | Vercel collector | **Tested against synthetic responses matching the documented API shape — never against a live account.** Parsing, scope logic, auth-failure messages, and value-dropping are covered; that the live endpoints return this shape is not. |
 | Anthropic adapter | **Tested with a stubbed provider — the real network call has never run.** Schema validation, prompt stability, and failure handling are covered; the live request is not. |
 
-101 tests, `npm test`.
+126 tests, `npm test`.
+
+### Failure-scenario harness
+
+The unit suite exercises each piece through an injected seam. `npm run harness` exercises the thing you actually type — the built `dist/cli.js`, a real child process, real streams, real exit codes — against a Next-shaped fixture whose build replays transcribed Next.js 14 failures:
+
+```
+  scenario          exit  frame  findings  redaction  status
+  missing-env       1     17     2         —          ok
+  type-error        1     16     2         —          ok
+  module-not-found  1     16     2         —          ok
+  oom               137   8      2         —          ok
+  leaky-log         1     9      2         clean      ok
+```
+
+Each scenario asserts the exit code is forwarded verbatim, the error frame is non-empty and contains the line that explains the failure, and — for `leaky-log` — that a secret the build echoed is both captured and redacted. That last pair matters together: a redaction check whose log was never captured passes while testing nothing, so a redaction marker is required as evidence the pass actually ran.
+
+```bash
+npm run harness                           # summary table
+npm run harness -- --verbose              # full CLI output per scenario
+npm run harness -- --payload missing-env  # exactly what would be sent
+```
+
+It exits non-zero when a scenario regresses, so it works as a CI gate. With `ANTHROPIC_API_KEY` set it also exercises the live diagnosis path end to end.
 
 If you hit a mismatch against the real Vercel API, that's the most likely place a bug lives — please open an issue.
 

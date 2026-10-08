@@ -17,7 +17,8 @@
     "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "harness": "npm run build --silent 1>&2 && node test/harness/run-scenarios.mjs"
   },
   "keywords": [
     "vercel",
